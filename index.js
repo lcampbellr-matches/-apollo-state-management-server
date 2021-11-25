@@ -21,12 +21,18 @@ const typeDefs = gql`
     title: String
     favouriteBook: Book
     favouriteMovie: Movie
+    approval: Boolean
   }
 
   input UpdateInput { 
     title: String
     movie: String
     book: String
+  }
+
+  input ApprovalInput {
+    title: String
+    approval: Boolean
   }
 
   type UpdateOutput {
@@ -46,6 +52,10 @@ const typeDefs = gql`
 
   type Mutation {
     updateUsers(input: UpdateInput): User
+  }
+
+  type Mutation {
+    validateUser(input: ApprovalInput): User
   }
 `;
 
@@ -81,6 +91,7 @@ const users = [
     favouriteMovie: {
       title: 'The Dark Knight',
     },
+    approval: true,
   },
   {
     title: 'Betty',
@@ -90,6 +101,7 @@ const users = [
     favouriteMovie: {
       title: 'Forrest Gump',
     },
+    approval: false,
   }
 ]
 
@@ -113,12 +125,23 @@ const resolvers = {
         },
         favouriteMovie: {
           title: input.movie,
-        }
+        },
+        approval: false,
       };
       console.log("updateObj: ", updateObj);
       users.splice(index, 1, updateObj);
       return updateObj;
-    }
+    },
+    validateUser: (_, { input }) => {
+      console.log("input: ", input);
+      let index = users.findIndex(({ title }) => title === input.title);
+      if (index < 0) index = users.length;
+      const updateObj = users[index];
+      updateObj.approval = input.approval;
+      console.log("updateObj: ", updateObj);
+      users.splice(index, 1, updateObj);
+      return updateObj;
+    },
   }
 };
 
